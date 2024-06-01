@@ -37,14 +37,20 @@ function Level:createPowerUp()
 end
 
 function Level:update(dt)
+    local newDirection = nil
     if love.keyboard.wasPressed('w') or love.keyboard.wasPressed('up') then
-        self.snake.direction = 'up'
+        newDirection = 'up'
     elseif love.keyboard.wasPressed('a') or love.keyboard.wasPressed('left') then
-        self.snake.direction = 'left'
+        newDirection = 'left'
     elseif love.keyboard.wasPressed('d') or love.keyboard.wasPressed('right') then
-        self.snake.direction = 'right'
+        newDirection = 'right'
     elseif love.keyboard.wasPressed('s') or love.keyboard.wasPressed('down') then
-        self.snake.direction = 'down'
+        newDirection = 'down'
+    end
+
+    -- do not change direction if no buttons are pressed
+    if newDirection ~= nil and self.snake:canChangeDirection(newDirection) then
+        self.snake.direction = newDirection
     end
 
     self.snake:update(dt)

@@ -16,6 +16,30 @@ function Snake:init(gridOffsetX, gridOffsetY, gridWidth, gridHeight)
     self:createSegmentAt(veryFirstSegmentGridX, veryFirstSegmentGridY)
 end
 
+function Snake:length()
+    return #self.segments
+end
+
+function Snake:canChangeDirection(newDirection)
+    if self:length() == 1 then
+        -- there are no problems with collision
+        -- with a snake of size 1
+        return true
+    end
+
+    if self.direction == 'up' and newDirection == 'down' then
+        return false
+    elseif self.direction == 'down' and newDirection == 'up' then
+        return false
+    elseif self.direction == 'left' and newDirection == 'right' then
+        return false
+    elseif self.direction == 'right' and newDirection == 'left' then
+        return false
+    else
+        return true
+    end
+end
+
 function Snake:checkIfDied()
     self.isDead = self.isDead or self:hasDied()
 end
