@@ -9,10 +9,33 @@ function Snake:init(gridOffsetX, gridOffsetY, gridWidth, gridHeight)
     self.segments = {}
     self.direction = 'up'
     self.lastUpdated = 0
+    self.isDead = false
 
     local veryFirstSegmentGridX = math.random(0, gridWidth - 1)
     local veryFirstSegmentGridY = math.random(0, gridHeight - 1)
     self:createSegmentAt(veryFirstSegmentGridX, veryFirstSegmentGridY)
+end
+
+function Snake:checkIfDied()
+    self.isDead = self.isDead or self:hasDied()
+end
+
+function Snake:hasDied()
+    assert(#self.segments > 0)
+    if #self.segments <= 3 then
+        return false
+    end
+
+    local headSegment = self.segments[1]
+
+    for i=2,#self.segments do
+        local segment = self.segments[i]
+        if segment.gridX == headSegment.gridX and segment.gridY == headSegment.gridY then
+            return true
+        end
+    end
+
+    return false
 end
 
 function Snake:stepsOn(gridX, gridY)

@@ -34,8 +34,6 @@ function Level:createPowerUp()
             end
         end
     end
-
-    assert(false)
 end
 
 function Level:update(dt)
@@ -50,16 +48,25 @@ function Level:update(dt)
     end
 
     self.snake:update(dt)
+
+    -- check collision with power up
     if self.snake:stepsOn(self.powerUp.gridX, self.powerUp.gridY) then
         self.snake:grow(1)
         self.unoccupiedCellsCount = self.unoccupiedCellsCount - 1
         self.powerUp = self:createPowerUp()
     end
+
+    -- check collision with self
+    self.snake:checkIfDied()
 end
 
 function Level:render()
     love.graphics.setColor(SNAKE_BACKGROUND_COLOR[1] / 255, SNAKE_BACKGROUND_COLOR[2] / 255, SNAKE_BACKGROUND_COLOR[3] / 255, 1)
     love.graphics.rectangle('fill', self.x, self.y, self.width, self.height)
+
+    if self.snake.isDead then
+        love.graphics.print('Dead', 0, 0)
+    end
 
     if self.powerUp then
         self.powerUp:render()
