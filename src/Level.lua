@@ -71,7 +71,7 @@ function Level:render()
     love.graphics.rectangle('fill', self.x, self.y, self.width, self.height)
 
     if self.snake.isDead then
-        love.graphics.print('Dead', 0, 0)
+        love.graphics.print('Dead', gFonts['small'], 0, 0)
     end
 
     if self.powerUp then
@@ -80,6 +80,33 @@ function Level:render()
 
     self.snake:render()
 
+    self:renderStartScreen()
+
     -- reset color back to normal
     love.graphics.setColor(1, 1, 1, 1)
+end
+
+function Level:renderStartScreen()
+    local textHeight = gFonts['medium-bold']:getHeight()
+
+    local textWidth = 80
+    local textX = math.floor(self.x + (self.width - textWidth) / 2)
+    local textY = math.floor(self.y + (self.height - textHeight) / 2)
+    local textShadowOffsetX = 2
+    local textShadowOffsetY = 2
+
+    love.graphics.setColor(SNAKE_COLOR[1] / 255, SNAKE_COLOR[2] / 255, SNAKE_COLOR[3] / 255, 1)
+    love.graphics.printf('Snake', gFonts['medium-bold'], textX + textShadowOffsetX, textY + textShadowOffsetY, textWidth, 'center')
+
+    love.graphics.setColor(1, 1, 1, 1)
+    love.graphics.printf('Snake', gFonts['medium-bold'], textX, textY, textWidth, 'center')
+
+    love.graphics.setColor(SNAKE_COLOR[1] / 255, SNAKE_COLOR[2] / 255, SNAKE_COLOR[3] / 255, 1)
+    love.graphics.printf("Press 'space' to start", gFonts['small'],
+        math.floor(self.x + (self.width - 60) / 2) + 1, math.floor(self.y + self.height / 2 + 20) + 1,
+        60, 'center')
+
+    love.graphics.setColor(1, 1, 1, 1)
+    love.graphics.printf("Press 'space' to start", gFonts['small'],
+        math.floor(self.x + (self.width - 60) / 2), math.floor(self.y + self.height / 2 + 20), 60, 'center')
 end
