@@ -10,6 +10,8 @@ function Level:init(x, y, width, height, gridWidth, gridHeight)
     self.gridWidth = gridWidth
     self.gridHeight = gridHeight
 
+    self.isRunning = false
+
     self.snake = Snake(x, y, gridWidth, gridHeight)
     -- 1 cell is taken by snake by default
     self.unoccupiedCellsCount = LEVEL_WIDTH * LEVEL_HEIGHT - 1
@@ -37,6 +39,16 @@ function Level:createPowerUp()
 end
 
 function Level:update(dt)
+    if love.keyboard.wasPressed('space') then
+        self.isRunning = true
+    end
+
+    if self.isRunning then
+        self:updateLevel(dt)
+    end
+end
+
+function Level:updateLevel(dt)
     local newDirection = nil
     if love.keyboard.wasPressed('w') or love.keyboard.wasPressed('up') then
         newDirection = 'up'
@@ -70,17 +82,15 @@ function Level:render()
     love.graphics.setColor(SNAKE_BACKGROUND_COLOR[1] / 255, SNAKE_BACKGROUND_COLOR[2] / 255, SNAKE_BACKGROUND_COLOR[3] / 255, 1)
     love.graphics.rectangle('fill', self.x, self.y, self.width, self.height)
 
-    if self.snake.isDead then
-        love.graphics.print('Dead', gFonts['small'], 0, 0)
-    end
-
     if self.powerUp then
         self.powerUp:render()
     end
 
     self.snake:render()
 
-    self:renderStartScreen()
+    if not self.isRunning then
+        self:renderStartScreen()
+    end
 
     -- reset color back to normal
     love.graphics.setColor(1, 1, 1, 1)
@@ -95,18 +105,10 @@ function Level:renderStartScreen()
     local textShadowOffsetX = 2
     local textShadowOffsetY = 2
 
-    love.graphics.setColor(SNAKE_COLOR[1] / 255, SNAKE_COLOR[2] / 255, SNAKE_COLOR[3] / 255, 1)
-    love.graphics.printf('Snake', gFonts['medium-bold'], textX + textShadowOffsetX, textY + textShadowOffsetY, textWidth, 'center')
+    renderWithShadow(APP_NAME, gFonts['medium-bold'], textX, textY, textWidth, 'center',
+        { 255, 255, 255 }, SNAKE_COLOR, textShadowOffsetX, textShadowOffsetY)
 
-    love.graphics.setColor(1, 1, 1, 1)
-    love.graphics.printf('Snake', gFonts['medium-bold'], textX, textY, textWidth, 'center')
-
-    love.graphics.setColor(SNAKE_COLOR[1] / 255, SNAKE_COLOR[2] / 255, SNAKE_COLOR[3] / 255, 1)
-    love.graphics.printf("Press 'space' to start", gFonts['small'],
-        math.floor(self.x + (self.width - 60) / 2) + 1, math.floor(self.y + self.height / 2 + 20) + 1,
-        60, 'center')
-
-    love.graphics.setColor(1, 1, 1, 1)
-    love.graphics.printf("Press 'space' to start", gFonts['small'],
-        math.floor(self.x + (self.width - 60) / 2), math.floor(self.y + self.height / 2 + 20), 60, 'center')
+    renderWithShadow(START_GAME_TEXT, gFonts['small'],
+        math.floor(self.x + (self.width - 60) / 2), math.floor(self.y + self.height / 2 + 20),
+        60, 'center', { 255, 255, 255 }, SNAKE_COLOR, 1, 1)
 end

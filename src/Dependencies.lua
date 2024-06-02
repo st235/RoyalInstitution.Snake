@@ -4,6 +4,9 @@ push = require 'lib/push'
 
 require 'src/Constants'
 
+-- utils
+require 'src/GraphicUtil'
+
 -- game logic
 require 'src/SnakeSegment'
 require 'src/Snake'

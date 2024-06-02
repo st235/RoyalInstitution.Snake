@@ -1,3 +1,5 @@
+math.randomseed(os.time())
+
 require 'src/Dependencies'
 
 local levelWidth = LEVEL_WIDTH * SEGMENT_SIZE_PX
@@ -6,8 +8,6 @@ level = Level(math.floor((VIRTUAL_WIDTH - levelWidth) / 2), math.floor((VIRTUAL_
     levelWidth, levelHeight, LEVEL_WIDTH, LEVEL_HEIGHT)
 
 function love.load()
-    math.randomseed(os.time())
-
     love.window.setTitle(APP_NAME)
     love.graphics.setDefaultFilter('nearest', 'nearest')
 
