@@ -39,6 +39,11 @@ function Level:createPowerUp()
 end
 
 function Level:update(dt)
+    -- closing the game window
+    if love.keyboard.wasPressed('escape') then
+        love.event.quit()
+    end
+
     if love.keyboard.wasPressed('space') then
         self.isRunning = true
     end
