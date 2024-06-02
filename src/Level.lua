@@ -11,30 +11,58 @@ function Level:init(x, y, width, height, gridWidth, gridHeight)
     self.gridHeight = gridHeight
 
     self.isRunning = false
-
-    self.snake = Snake(x, y, gridWidth, gridHeight)
-    -- 1 cell is taken by snake by default
-    self.unoccupiedCellsCount = LEVEL_WIDTH * LEVEL_HEIGHT - 1
-    self.powerUp = self:createPowerUp()
+    self:start()
 end
 
-function Level:createPowerUp()
-    local leftUnoccupied = self.unoccupiedCellsCount
+function Level:start()
+    self.snake = Snake(self.x, self.y, self.gridWidth, self.gridHeight)
+    self:spawnPowerUp()
+end
 
-    for i=0,LEVEL_HEIGHT-1 do
-        for j=0,LEVEL_WIDTH-1 do
-            local unoccupied = not self.snake:stepsOn(i, j)
-            local shouldSpawn = math.random(1, 100) <= (1 / leftUnoccupied * 100)
+function Level:getUnoccupiedCells()
+    local unoccupiedCells = {}
 
-            if unoccupied then
-                leftUnoccupied = leftUnoccupied - 1
-            end
+    local grid = {}
+    for i=1,self.gridHeight do
+        table.insert(grid, {})
+        for j=1,self.gridWidth do
+            table.insert(grid[i], true)
+        end
+    end
 
-            if unoccupied and shouldSpawn then
-                return PowerUp(self.x + j * SEGMENT_SIZE_PX, self.y + i * SEGMENT_SIZE_PX,
-                    SEGMENT_SIZE_PX, SEGMENT_SIZE_PX, j, i)
+    -- exclude snake segments
+    for _, segment in pairs(self.snake.segments) do
+        grid[segment.gridY][segment.gridX] = false
+    end
+
+    -- exclude power ups
+    if self.powerUp then
+        grid[self.powerUp.gridY][self.powerUp.gridX] = false
+    end
+
+    for i=1,self.gridHeight do
+        for j=1,self.gridWidth do
+            if grid[i][j] then
+                table.insert(unoccupiedCells, { j, i })
             end
         end
+    end
+
+    return unoccupiedCells
+end
+
+function Level:spawnPowerUp(count)
+    count = count or 1
+    local unoccupiedCells = self:getUnoccupiedCells()
+
+    for i=1,count do
+        local cellIndex = math.random(1, #unoccupiedCells)
+        local gridX, gridY = unoccupiedCells[cellIndex][1], unoccupiedCells[cellIndex][2]
+
+        table.remove(unoccupiedCells, cellIndex)
+
+        self.powerUp = PowerUp(self.x + (gridX - 1) * SEGMENT_SIZE_PX, self.y + (gridY - 1) * SEGMENT_SIZE_PX,
+            SEGMENT_SIZE_PX, SEGMENT_SIZE_PX, gridX, gridY)
     end
 end
 
@@ -75,12 +103,13 @@ function Level:updateLevel(dt)
     -- check collision with power up
     if self.snake:stepsOn(self.powerUp.gridX, self.powerUp.gridY) then
         self.snake:grow(1)
-        self.unoccupiedCellsCount = self.unoccupiedCellsCount - 1
-        self.powerUp = self:createPowerUp()
+        self:spawnPowerUp()
     end
 
     -- check collision with self
-    self.snake:checkIfDied()
+    if self.snake:checkCollisionWithSelf() then
+        self.isRunning = false
+    end
 end
 
 function Level:render()

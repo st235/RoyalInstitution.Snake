@@ -9,10 +9,9 @@ function Snake:init(gridOffsetX, gridOffsetY, gridWidth, gridHeight)
     self.segments = {}
     self.direction = 'up'
     self.lastUpdated = 0
-    self.isDead = false
 
-    local veryFirstSegmentGridX = math.random(0, gridWidth - 1)
-    local veryFirstSegmentGridY = math.random(0, gridHeight - 1)
+    local veryFirstSegmentGridX = math.random(1, gridWidth)
+    local veryFirstSegmentGridY = math.random(1, gridHeight)
     self:createSegmentAt(veryFirstSegmentGridX, veryFirstSegmentGridY)
 end
 
@@ -40,12 +39,8 @@ function Snake:canChangeDirection(newDirection)
     end
 end
 
-function Snake:checkIfDied()
-    self.isDead = self.isDead or self:hasDied()
-end
-
-function Snake:hasDied()
-    assert(#self.segments > 0)
+function Snake:checkCollisionWithSelf()
+    assert(self:length() > 0)
     if #self.segments <= 3 then
         return false
     end
@@ -73,7 +68,7 @@ function Snake:stepsOn(gridX, gridY)
 end
 
 function Snake:createSegmentAt(gridX, gridY)
-    local segment = SnakeSegment(self.gridOffsetX + gridX * SEGMENT_SIZE_PX, self.gridOffsetY + gridY * SEGMENT_SIZE_PX,
+    local segment = SnakeSegment(self.gridOffsetX + (gridX - 1) * SEGMENT_SIZE_PX, self.gridOffsetY + (gridY - 1) * SEGMENT_SIZE_PX,
         SEGMENT_SIZE_PX, SEGMENT_SIZE_PX, gridX, gridY)
     table.insert(self.segments, 1, segment)
 end
@@ -98,11 +93,11 @@ function Snake:move(dx, dy)
     -- remove the last segment
     table.remove(self.segments, #self.segments)
 
-    self:createSegmentAt((headSegment.gridX + dx) % self.gridWidth, (headSegment.gridY + dy) % self.gridHeight)
-end
-
-function Snake:willMove(dt)
-    return (self.lastUpdated + dt) >= SNAKE_UPDATE_INTERVAL
+    -- (-1) and (+1) to correctly wrap the grid coordinate
+    -- around the grid itself
+    self:createSegmentAt(
+        (headSegment.gridX + dx - 1) % self.gridWidth + 1, 
+        (headSegment.gridY + dy - 1) % self.gridHeight + 1)
 end
 
 function Snake:update(dt)
