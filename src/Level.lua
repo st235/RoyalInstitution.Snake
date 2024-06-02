@@ -79,6 +79,7 @@ function Level:update(dt)
 
     if love.keyboard.wasPressed('space') then
         self.isRunning = true
+        self:start()
     end
 
     if self.isRunning then
@@ -118,6 +119,7 @@ function Level:updateLevel(dt)
     -- check collision with self
     if self.snake:checkCollisionWithSelf() then
         self.isRunning = false
+        self.message = 'Oops'
     end
 end
 
@@ -148,7 +150,9 @@ function Level:renderStartScreen()
     local textShadowOffsetX = 2
     local textShadowOffsetY = 2
 
-    renderWithShadow(APP_NAME, gFonts['medium-bold'], textX, textY, textWidth, 'center',
+    local title = self.message or APP_NAME
+
+    renderWithShadow(title, gFonts['medium-bold'], textX, textY, textWidth, 'center',
         { 255, 255, 255 }, SNAKE_COLOR, textShadowOffsetX, textShadowOffsetY)
 
     renderWithShadow(START_GAME_TEXT, gFonts['small'],
