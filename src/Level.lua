@@ -150,6 +150,9 @@ function Level:updateLevel(dt)
     -- check collision with power ups
     for i, powerup in ipairs(self.powerups) do
         if self.snake:stepsOn(powerup.gridX, powerup.gridY) then
+            gSounds['eat']:stop()
+            gSounds['eat']:play()
+
             table.remove(self.powerups, i)
 
             self.snake:grow(1)
@@ -159,6 +162,9 @@ function Level:updateLevel(dt)
 
     for _, obstacle in pairs(self.obstacles) do
         if self.snake:stepsOn(obstacle.gridX, obstacle.gridY) then
+            gSounds['death']:stop()
+            gSounds['death']:play()
+
             self.isRunning = false
             self.message = 'Oops'
             break
@@ -167,6 +173,9 @@ function Level:updateLevel(dt)
 
     -- check collision with self
     if self.snake:checkCollisionWithSelf() then
+        gSounds['death']:stop()
+        gSounds['death']:play()
+
         self.isRunning = false
         self.message = 'Oops'
     end

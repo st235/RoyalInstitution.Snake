@@ -23,3 +23,8 @@ gFonts = {
     ['small-bold'] = love.graphics.newFont('resources/font/PixeloidSans-Bold.ttf', 9),
     ['medium-bold'] = love.graphics.newFont('resources/font/PixeloidSans-Bold.ttf', 18),
 }
+
+gSounds = {
+    ['eat'] = love.audio.newSource('resources/sound/eat.mp3', 'static'),
+    ['death'] = love.audio.newSource('resources/sound/death.mp3', 'static'),
+}
