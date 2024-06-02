@@ -16,7 +16,8 @@ end
 
 function Level:start()
     self.snake = Snake(self.x, self.y, self.gridWidth, self.gridHeight)
-    self:spawnPowerUp()
+    self.powerups = {}
+    self:spawnPowerUp(3)
 end
 
 function Level:getUnoccupiedCells()
@@ -36,8 +37,8 @@ function Level:getUnoccupiedCells()
     end
 
     -- exclude power ups
-    if self.powerUp then
-        grid[self.powerUp.gridY][self.powerUp.gridX] = false
+    for _, powerup in pairs(self.powerups) do
+        grid[powerup.gridY][powerup.gridX] = false
     end
 
     for i=1,self.gridHeight do
@@ -61,8 +62,12 @@ function Level:spawnPowerUp(count)
 
         table.remove(unoccupiedCells, cellIndex)
 
-        self.powerUp = PowerUp(self.x + (gridX - 1) * SEGMENT_SIZE_PX, self.y + (gridY - 1) * SEGMENT_SIZE_PX,
+        local powerup = PowerUp(
+            self.x + (gridX - 1) * SEGMENT_SIZE_PX,
+            self.y + (gridY - 1) * SEGMENT_SIZE_PX,
             SEGMENT_SIZE_PX, SEGMENT_SIZE_PX, gridX, gridY)
+
+        table.insert(self.powerups, powerup)
     end
 end
 
@@ -100,10 +105,14 @@ function Level:updateLevel(dt)
 
     self.snake:update(dt)
 
-    -- check collision with power up
-    if self.snake:stepsOn(self.powerUp.gridX, self.powerUp.gridY) then
-        self.snake:grow(1)
-        self:spawnPowerUp()
+    -- check collision with power ups
+    for i, powerup in ipairs(self.powerups) do
+        if self.snake:stepsOn(powerup.gridX, powerup.gridY) then
+            table.remove(self.powerups, i)
+
+            self.snake:grow(1)
+            self:spawnPowerUp()
+        end
     end
 
     -- check collision with self
@@ -116,8 +125,8 @@ function Level:render()
     love.graphics.setColor(SNAKE_BACKGROUND_COLOR[1] / 255, SNAKE_BACKGROUND_COLOR[2] / 255, SNAKE_BACKGROUND_COLOR[3] / 255, 1)
     love.graphics.rectangle('fill', self.x, self.y, self.width, self.height)
 
-    if self.powerUp then
-        self.powerUp:render()
+    for _, powerup in pairs(self.powerups) do
+        powerup:render()
     end
 
     self.snake:render()
