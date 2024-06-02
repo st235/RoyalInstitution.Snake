@@ -1,6 +1,6 @@
 Level = Class{}
 
-function Level:init(x, y, width, height, gridWidth, gridHeight)
+function Level:init(x, y, width, height, gridWidth, gridHeight, obstaclesMap)
     self.x = x
     self.y = y
     self.width = width
@@ -10,14 +10,24 @@ function Level:init(x, y, width, height, gridWidth, gridHeight)
     self.gridWidth = gridWidth
     self.gridHeight = gridHeight
 
+    self.obstaclesMap = obstaclesMap
+
     self.isRunning = false
     self:start()
 end
 
 function Level:start()
-    self.snake = Snake(self.x, self.y, self.gridWidth, self.gridHeight)
     self.powerups = {}
+    self.obstacles = {}
+    self:spawnObstacles()
     self:spawnPowerUp(3)
+
+    local unoccupiedCells = self:getUnoccupiedCells()
+    assert(#unoccupiedCells >= 5)
+
+    local cellIndex = math.random(1, #unoccupiedCells)
+    self.snake = Snake(self.x, self.y, self.gridWidth, self.gridHeight,
+        unoccupiedCells[cellIndex][1], unoccupiedCells[cellIndex][2])
 end
 
 function Level:getUnoccupiedCells()
@@ -31,14 +41,23 @@ function Level:getUnoccupiedCells()
         end
     end
 
-    -- exclude snake segments
-    for _, segment in pairs(self.snake.segments) do
-        grid[segment.gridY][segment.gridX] = false
+    -- if there is no snake, 
+    -- this is an initialisation stage
+    if self.snake then
+        -- exclude snake segments
+        for _, segment in pairs(self.snake.segments) do
+            grid[segment.gridY][segment.gridX] = false
+        end
     end
 
     -- exclude power ups
     for _, powerup in pairs(self.powerups) do
         grid[powerup.gridY][powerup.gridX] = false
+    end
+
+    -- exclude obstacles
+    for _, obstacle in pairs(self.obstacles) do
+        grid[obstacle.gridY][obstacle.gridX] = false
     end
 
     for i=1,self.gridHeight do
@@ -50,6 +69,28 @@ function Level:getUnoccupiedCells()
     end
 
     return unoccupiedCells
+end
+
+function Level:spawnObstacles()
+    assert(#self.obstaclesMap == self.gridHeight)
+
+    for i=1,self.gridHeight do
+        assert(#self.obstaclesMap[i] == self.gridWidth)
+        for j=1,self.gridWidth do
+            if self.obstaclesMap[i][j] == 0 then
+                goto continue
+            end
+
+            local obstacle = Obstacle(
+                self.x + (j - 1) * SEGMENT_SIZE_PX,
+                self.y + (i - 1) * SEGMENT_SIZE_PX,
+                SEGMENT_SIZE_PX, SEGMENT_SIZE_PX, j, i)
+
+            table.insert(self.obstacles, obstacle)
+
+            ::continue::
+        end
+    end
 end
 
 function Level:spawnPowerUp(count)
@@ -116,6 +157,14 @@ function Level:updateLevel(dt)
         end
     end
 
+    for _, obstacle in pairs(self.obstacles) do
+        if self.snake:stepsOn(obstacle.gridX, obstacle.gridY) then
+            self.isRunning = false
+            self.message = 'Oops'
+            break
+        end
+    end
+
     -- check collision with self
     if self.snake:checkCollisionWithSelf() then
         self.isRunning = false
@@ -126,6 +175,10 @@ end
 function Level:render()
     love.graphics.setColor(SNAKE_BACKGROUND_COLOR[1] / 255, SNAKE_BACKGROUND_COLOR[2] / 255, SNAKE_BACKGROUND_COLOR[3] / 255, 1)
     love.graphics.rectangle('fill', self.x, self.y, self.width, self.height)
+
+    for _, obstacle in pairs(self.obstacles) do
+        obstacle:render()
+    end
 
     for _, powerup in pairs(self.powerups) do
         powerup:render()

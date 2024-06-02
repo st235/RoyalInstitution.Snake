@@ -15,9 +15,6 @@ SNAKE_COLOR = { 19, 21, 25 }
 
 -- level definitions
 -- size of level in segments
-LEVEL_WIDTH = 14
-LEVEL_HEIGHT = 23
-
 SEGMENT_SIZE_PX = 8
 
 -- snake update interval in seconds

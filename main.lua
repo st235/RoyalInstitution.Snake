@@ -1,13 +1,8 @@
-math.randomseed(os.time())
-
 require 'src/Dependencies'
 
-local levelWidth = LEVEL_WIDTH * SEGMENT_SIZE_PX
-local levelHeight = LEVEL_HEIGHT * SEGMENT_SIZE_PX
-level = Level(math.floor((VIRTUAL_WIDTH - levelWidth) / 2), math.floor((VIRTUAL_HEIGHT - levelHeight) / 2),
-    levelWidth, levelHeight, LEVEL_WIDTH, LEVEL_HEIGHT)
-
 function love.load()
+    math.randomseed(os.time())
+
     love.window.setTitle(APP_NAME)
     love.graphics.setDefaultFilter('nearest', 'nearest')
 
@@ -18,6 +13,13 @@ function love.load()
     })
 
     love.keyboard.keyPressed = {}
+
+    local levelWidth = LEVEL['width'] * SEGMENT_SIZE_PX
+    local levelHeight = LEVEL['height'] * SEGMENT_SIZE_PX
+    gLevel = Level(
+        math.floor((VIRTUAL_WIDTH - levelWidth) / 2),
+        math.floor((VIRTUAL_HEIGHT - levelHeight) / 2),
+        levelWidth, levelHeight, LEVEL['width'], LEVEL['height'], LEVEL['obstacles'])
 end
 
 function love.resize(w, h)
@@ -33,7 +35,7 @@ function love.keyboard.wasPressed(key)
 end
 
 function love.update(dt)
-    level:update(dt)
+    gLevel:update(dt)
 
     love.keyboard.keyPressed = {}
 end
@@ -41,9 +43,7 @@ end
 function love.draw()
     push:start()
 
-    love.graphics.clear(SNAKE_COLOR[1] / 255, SNAKE_COLOR[2] / 255, SNAKE_COLOR[3] / 255, 1)
-
-    level:render()
+    gLevel:render()
 
     push:finish()
 end

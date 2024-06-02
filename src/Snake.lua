@@ -1,6 +1,6 @@
 Snake = Class{}
 
-function Snake:init(gridOffsetX, gridOffsetY, gridWidth, gridHeight)
+function Snake:init(gridOffsetX, gridOffsetY, gridWidth, gridHeight, startGridX, startGridY)
     self.gridOffsetX = gridOffsetX
     self.gridOffsetY = gridOffsetY
     self.gridWidth = gridWidth
@@ -10,9 +10,7 @@ function Snake:init(gridOffsetX, gridOffsetY, gridWidth, gridHeight)
     self.direction = 'up'
     self.lastUpdated = 0
 
-    local veryFirstSegmentGridX = math.random(1, gridWidth)
-    local veryFirstSegmentGridY = math.random(1, gridHeight)
-    self:createSegmentAt(veryFirstSegmentGridX, veryFirstSegmentGridY)
+    self:createSegmentAt(startGridX, startGridY)
 end
 
 function Snake:length()
