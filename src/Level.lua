@@ -17,6 +17,9 @@ function Level:init(x, y, width, height, gridWidth, gridHeight, obstaclesMap)
 end
 
 function Level:start()
+    -- reset score every time we start the game
+    self.score = 0
+
     self.powerups = {}
     self.obstacles = {}
     self:spawnObstacles()
@@ -155,11 +158,13 @@ function Level:updateLevel(dt)
 
             table.remove(self.powerups, i)
 
+            self.score = self.score + 1
             self.snake:grow(1)
             self:spawnPowerUp()
         end
     end
 
+    -- check for collisions with obstacles
     for _, obstacle in pairs(self.obstacles) do
         if self.snake:stepsOn(obstacle.gridX, obstacle.gridY) then
             gSounds['death']:stop()
@@ -197,6 +202,8 @@ function Level:render()
 
     if not self.isRunning then
         self:renderStartScreen()
+    else
+        self:renderScore()
     end
 
     -- reset color back to normal
@@ -220,4 +227,11 @@ function Level:renderStartScreen()
     renderWithShadow(START_GAME_TEXT, gFonts['small'],
         math.floor(self.x + (self.width - 60) / 2), math.floor(self.y + self.height / 2 + 20),
         60, 'center', { 255, 255, 255 }, SNAKE_COLOR, 1, 1)
+end
+
+function Level:renderScore()
+    local font = gFonts['small']
+    local textHeight = font:getHeight()
+    local textWidth = 80
+    love.graphics.printf('Score: ' .. tostring(self.score), font, 2, self.height - textHeight - 2, textWidth, 'left')
 end
