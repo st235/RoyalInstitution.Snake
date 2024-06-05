@@ -42,8 +42,6 @@ end
 
 function love.draw()
     push:start()
-
     gLevel:render()
-
     push:finish()
 end
